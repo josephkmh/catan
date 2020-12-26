@@ -1,0 +1,32 @@
+{
+    "name": ".NET Core Launch (console)",
+    "type": "coreclr",
+    "request": "launch",
+    "preLaunchTask": "build",
+    // If you have changed target frameworks, make sure to update the program path.
+    "program": "${workspaceFolder}/bin/Debug/net5.0/otilos.dll",
+    "args": [],
+    "cwd": "${workspaceFolder}",
+    // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
+    "console": "integratedTerminal",
+    "stopAtEntry": false,
+    "configurations": [
+    {
+        "name": ".NET Core Launch (web)",
+        "type": "coreclr",
+        "request": "launch",
+        "preLaunchTask": "build",
+        "program": "${workspaceFolder}/bin/Debug/net5.0/otilos.dll",
+        "args": [],
+        "cwd": "${workspaceFolder}",
+        "stopAtEntry": false,
+        "serverReadyAction": {
+            "action": "openExternally",
+            "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+        },
+        "env": {
+            "ASPNETCORE_ENVIRONMENT": "Development"
+        }
+    }
+    ]
+  }
