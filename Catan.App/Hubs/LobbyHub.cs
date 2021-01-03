@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using Catan.App;
@@ -11,7 +12,7 @@ namespace Catan.App.Hubs
 
         public async Task SendMessage(Message message)
         {
-            message.SenderType = Context.ConnectionId;
+            message.Sender = Context.ConnectionId;
             await Clients.All.SendAsync("ReceiveMessage", message);
         }
 
@@ -24,24 +25,27 @@ namespace Catan.App.Hubs
                 Username = Context.ConnectionId
             };
             _lobby.AddConnectedUser(Context.ConnectionId, newUser);
-            await Clients.All.SendAsync("ReceiveMessage", new Message()
-            {
-                User = Context.ConnectionId,
-                SenderType = "server",
-                Content = Context.ConnectionId + " connected."
-            });
-            await Clients.Caller.SendAsync("ReceiveAllConnectedUsers", _lobby.ConnectedUsers);
+            await Clients.All.SendAsync("UserConnected", newUser);
+            await Clients.Caller.SendAsync("ReceiveAllConnectedUsers", _lobby.ConnectedUsers.ToList());
         }
 
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
-            _lobby.RemoveConnectedUser(Context.ConnectionId);
-            await Clients.All.SendAsync("ReceiveMessage", new Message()
+            User disconnectedUser = _lobby.FindUserByConnectionId(Context.ConnectionId);
+            Game gameHostedByUser = _lobby.FindGameByHost(disconnectedUser);
+            Game gameJoinedByUser = _lobby.FindGameWithUser(disconnectedUser);
+            if (gameHostedByUser != null)
             {
-                User = Context.ConnectionId,
-                SenderType = "server",
-                Content = Context.ConnectionId + " disconnected."
-            });
+                _lobby.RemoveGame(gameHostedByUser.Id);
+                await Clients.All.SendAsync("GameRemoved", gameHostedByUser.Id);
+            }
+            else if (gameJoinedByUser != null)
+            {
+                Game updatedGame = gameJoinedByUser.HandleDisconnectedUser(disconnectedUser);
+                await Clients.All.SendAsync("GameUpdated", updatedGame);
+            }
+            _lobby.RemoveConnectedUser(Context.ConnectionId);
+            await Clients.All.SendAsync("UserDisconnected", disconnectedUser);
         }
 
         public async Task GetAllGames()
@@ -57,7 +61,6 @@ namespace Catan.App.Hubs
             game.Host = hostUser;
             game.Players.Add(new Player(hostUser));
             _lobby.Games.Add(game);
-            Console.WriteLine(_lobby.Games.Count);
             await Clients.All.SendAsync("GameCreated", game);
             await Clients.Caller.SendAsync("GameJoined", game.Id);
         }

@@ -20,7 +20,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\..\projects\Catan.App\Catan.App.csproj" />
+      <ProjectReference Include="..\..\..\RiderProjects\catan\Catan.App\Catan.App.csproj" />
       <ProjectReference Include="..\Catan.App\Catan.App.csproj" />
     </ItemGroup>
 

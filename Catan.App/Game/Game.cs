@@ -15,18 +15,20 @@ namespace Catan.App
         public Game()
         {
             this.Players = new List<Player>();
-            this.MaxPlayers = 4;
         }
 
-        public void HandleDisconnectedUser(User user)
+        public Game HandleDisconnectedUser(User user)
         {
             if (!this.InProgress)
             {
-                var playerToRemove = this.Players.Where(player => player.User.Id == user.Id).SingleOrDefault();
+                var playerToRemove = Players.Where(player => player.User.Id == user.Id).SingleOrDefault();
+
                 if (user != null)
                 {
-                    this.Players.Remove(playerToRemove);
+                    Players.Remove(playerToRemove);
                 }
+
+                return this;
             }
             else
             {

@@ -24,7 +24,14 @@ namespace Catan.App
             Console.WriteLine("Removing user " + connectionId + ". Users in Lobby: " + this.ConnectedUsers.Count);
             foreach (var game in this.Games)
             {
-                game.HandleDisconnectedUser(this.FindUserByConnectionId((connectionId)));
+                if (game.Host.Id == connectionId)
+                {
+                    this.Games.Remove(game);
+                }
+                else
+                {
+                    game.HandleDisconnectedUser(this.FindUserByConnectionId(connectionId));
+                }
             }
             return this.ConnectedUsers.TryRemove(connectionId, out _);
         }
@@ -106,6 +113,16 @@ namespace Catan.App
             }
             while (this.Games.Any(g => g.Id == id));
             return id;
+        }
+
+        public Game FindGameByHost(User user)
+        {
+            return Games.Where(game => game.Host == user).SingleOrDefault();
+        }
+
+        public Game FindGameWithUser(User user)
+        {
+            return Games.SingleOrDefault(game => Enumerable.Any<Player>(game.Players, player => player.User == user));
         }
     }
 }

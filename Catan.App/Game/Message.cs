@@ -4,6 +4,6 @@ namespace Catan.App
     {
         public string User { get; set; }
         public string Content { get; set; }
-        public string SenderType { get; set; }
+        public string Sender { get; set; }
     }
 }
