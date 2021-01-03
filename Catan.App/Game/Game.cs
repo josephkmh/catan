@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Catan.App
 {
@@ -14,6 +16,22 @@ namespace Catan.App
         {
             this.Players = new List<Player>();
             this.MaxPlayers = 4;
+        }
+
+        public void HandleDisconnectedUser(User user)
+        {
+            if (!this.InProgress)
+            {
+                var playerToRemove = this.Players.Where(player => player.User.Id == user.Id).SingleOrDefault();
+                if (user != null)
+                {
+                    this.Players.Remove(playerToRemove);
+                }
+            }
+            else
+            {
+                throw new Exception("User has left a game that is in progress");
+            }
         }
     }
 }

@@ -44,6 +44,11 @@ namespace Catan.App.Hubs
             });
         }
 
+        public async Task GetAllGames()
+        {
+            await Clients.Caller.SendAsync("ReceiveAllGames", _lobby.Games);
+        }
+
         public async Task CreateGame(Game game)
         {
             game.InProgress = false;
@@ -54,12 +59,21 @@ namespace Catan.App.Hubs
             _lobby.Games.Add(game);
             Console.WriteLine(_lobby.Games.Count);
             await Clients.All.SendAsync("GameCreated", game);
+            await Clients.Caller.SendAsync("GameJoined", game.Id);
         }
 
         public async Task JoinGame(string gameId)
         {
-            Game updatedGame = _lobby.AddUserToGame(Context.ConnectionId, gameId);
-            await Clients.All.SendAsync("GameUpdated", updatedGame);
+            try
+            {
+                Game updatedGame = _lobby.AddUserToGame(Context.ConnectionId, gameId);
+                await Clients.All.SendAsync("GameUpdated", updatedGame);
+                await Clients.Caller.SendAsync("GameJoined", updatedGame.Id);
+            }
+            catch (Exception error)
+            {
+                await Clients.Caller.SendAsync("Error", error.Message);
+            }
         }
 
         public async Task LeaveGame(string gameId)

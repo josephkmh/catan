@@ -22,6 +22,10 @@ namespace Catan.App
         public bool RemoveConnectedUser(string connectionId)
         {
             Console.WriteLine("Removing user " + connectionId + ". Users in Lobby: " + this.ConnectedUsers.Count);
+            foreach (var game in this.Games)
+            {
+                game.HandleDisconnectedUser(this.FindUserByConnectionId((connectionId)));
+            }
             return this.ConnectedUsers.TryRemove(connectionId, out _);
         }
 
@@ -43,8 +47,12 @@ namespace Catan.App
             {
                 throw new Exception("Could not find game to join (invalid game ID)");
             }
+
+            if (gameToJoin.Players.Count >= gameToJoin.MaxPlayers)
+            {
+                throw new Exception("Game is full");
+            }
             Player player = new Player(user);
-            player.Game = gameToJoin;
             gameToJoin.Players.Add(player);
             return gameToJoin;
         }

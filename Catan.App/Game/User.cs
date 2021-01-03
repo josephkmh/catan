@@ -4,5 +4,6 @@ namespace Catan.App
     {
         public string Id { get; set; }
         public string Username { get; set; }
+        public Game CurrentGame { get; set; }
     }
 }
